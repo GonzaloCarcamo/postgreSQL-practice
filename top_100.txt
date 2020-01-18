@@ -1,0 +1,256 @@
+REPARTO TOP_100 
+
+gonzalo@gonzalo-Inspiron-3583:~$ psql
+psql (11.5 (Ubuntu 11.5-1))
+Type "help" for help.
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+1. CREAR BASE DE DATOS "peliculas"
+
+gonzalo=# CREATE DATABASE peliculas ;
+CREATE DATABASE
+
+gonzalo=# \c peliculas
+You are now connected to database "peliculas" as user "gonzalo".
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+2. CREACION DE TABLAS "pelicula" y "reparto"
+
+peliculas=# CREATE TABLE peliculas(id SERIAL, pelicula VARCHAR(60), año_estreno INTEGER, director VARCHAR(40));
+CREATE TABLE
+
+peliculas=# CREATE TABLE reparto(id INTEGER, actor VARCHAR(40)) ;
+CREATE TABLE
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+3. IMPORT DOS TABLAS EN FORMATO CSV.
+
+peliculas=# COPY peliculas (id, pelicula, año_estreno, director) FROM '/home/gonzalo/postgresql/top_100/peliculas.csv' DELIMITER ',' CSV HEADER;
+COPY 100
+
+peliculas=# COPY reparto  (id, actor) FROM '/home/gonzalo/postgresql/top_100/reparto.csv' DELIMITER ',' CSV HEADER;
+COPY 1050
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+4. CONSULTA REPARTO DE PELICULA TITANIC.
+
+peliculas=# SELECT pelicula, año_estreno, director, actor FROM peliculas, reparto WHERE peliculas.id = reparto.id AND pelicula = 'Titanic';
+
+ pelicula | año_estreno |   director    |       actor       
+----------+-------------+---------------+-------------------
+ Titanic  |        1997 | James Cameron | Leonardo DiCaprio
+ Titanic  |        1997 | James Cameron | Kate Winslet
+ Titanic  |        1997 | James Cameron | Billy Zane
+ Titanic  |        1997 | James Cameron | Kathy Bates
+ Titanic  |        1997 | James Cameron | Frances Fisher
+ Titanic  |        1997 | James Cameron | Bernard Hill
+ Titanic  |        1997 | James Cameron | Jonathan Hyde
+ Titanic  |        1997 | James Cameron | Danny Nucci
+ Titanic  |        1997 | James Cameron | David Warner
+ Titanic  |        1997 | James Cameron | Bill Paxton
+ Titanic  |        1997 | James Cameron | Gloria Stuart
+ Titanic  |        1997 | James Cameron | Victor Garber
+ Titanic  |        1997 | James Cameron | Suzy Amis
+(13 rows)
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+5. CONSULTA PELICULAS PROTAGONIZADAS POR HARRISON FORD.
+
+peliculas=# SELECT pelicula, actor FROM peliculas, reparto WHERE peliculas.id = reparto.id AND actor = 'Harrison Ford';
+
+                   pelicula                    |     actor     
+-----------------------------------------------+---------------
+ Star Wars. Episodio IV: Una nueva esperanza   | Harrison Ford
+ Indiana Jones y la última cruzada             | Harrison Ford
+ En busca del arca perdida                     | Harrison Ford
+ Star Wars. Episodio V: El imperio contraataca | Harrison Ford
+ Star Wars. Episodio VI: El retorno del Jedi   | Harrison Ford
+ Blade Runner                                  | Harrison Ford
+ Apocalypse Now                                | Harrison Ford
+ Indiana Jones y el templo maldito             | Harrison Ford
+(8 rows)
+
+6. CONSULTA LOS 10 DIRECTORES MÁS POPULARES, INDICANDO NOMBRE Y NÚMERO DE PELICULAS EN EL TOP 100.
+
+peliculas=# SELECT director, count(*) AS numero_peliculas FROM peliculas GROUP BY director ORDER BY count(*) DESC LIMIT 10;
+
+       director       | numero_peliculas 
+----------------------+------------------
+ Steven Spielberg     |                9
+ Francis Ford Coppola |                4
+ Peter Jackson        |                4
+ Quentin Tarantino    |                3
+ Martin Scorsese      |                3
+ Robert Zemeckis      |                3
+ James Cameron        |                3
+ Ridley Scott         |                3
+ George Lucas         |                3
+ Frank Darabont       |                2
+(10 rows)
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+7. INDICAR CUÁNTOS ACTORES DISTINTOS EXISTEN EN EL LISTADO DE LA TABLA REPARTO.
+
+peliculas=# SELECT count(distinct actor) FROM reparto;
+ count 
+
+   831
+(1 row)
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+8. CONSULTA PELÍCULAS ESTRENADAS ENTRE 1990 Y 1999 (INCLUYENDO AMBAS FECHAS).
+
+peliculas=# SELECT pelicula, año_estreno FROM peliculas WHERE año_estreno BETWEEN 1990 AND 1999 ORDER BY año_estreno ASC ;
+
+                  pelicula                  | año_estreno 
+--------------------------------------------+-------------
+ Uno de los nuestros                        |        1990
+ Eduardo Manostijeras                       |        1990
+ El Padrino. Parte III                      |        1990
+ Terminator 2: el juicio final              |        1991
+ El silencio de los corderos                |        1991
+ La lista de Schindler                      |        1993
+ Parque Jurásico                            |        1993
+ Pesadilla antes de navidad                 |        1993
+ Forest Gump                                |        1994
+ Cadena perpetua                            |        1994
+ Pulp Fiction                               |        1994
+ Entrevista con el vampiro                  |        1994
+ El profesional                             |        1994
+ Seven                                      |        1995
+ Toy Story                                  |        1995
+ Braveheart                                 |        1995
+ Trainspotting                              |        1996
+ Titanic                                    |        1997
+ Hombres de negro                           |        1997
+ Mejor... imposible                         |        1997
+ American History X                         |        1998
+ Salvar al soldado Ryan                     |        1998
+ El show de Truman                          |        1998
+ Toy Story 2                                |        1999
+ La milla verde                             |        1999
+ American Beauty                            |        1999
+ Matrix                                     |        1999
+ Star Wars. Episodio I: La amenaza fantasma |        1999
+ El sexto sentido                           |        1999
+ El club de la pelea                        |        1999
+(30 rows)
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+9. CONSULTA REPARTO DE ACTORES PARA PELICULAS ESTRENADAS EL AÑO 2001.
+
+peliculas=# SELECT actor, pelicula, año_estreno  FROM peliculas, reparto WHERE peliculas.id = reparto.id AND año_estreno = 2001;
+
+       actor       |                     pelicula                     | año_estreno 
+-------------------+--------------------------------------------------+-------------
+ Elijah Wood       | El Señor de los anillos: La comunidad del anillo |        2001
+ Ian McKellen      | El Señor de los anillos: La comunidad del anillo |        2001
+ Viggo Mortensen   | El Señor de los anillos: La comunidad del anillo |        2001
+ Sean Astin        | El Señor de los anillos: La comunidad del anillo |        2001
+ Sean Bean         | El Señor de los anillos: La comunidad del anillo |        2001
+ Cate Blanchett    | El Señor de los anillos: La comunidad del anillo |        2001
+ Hugo Weaving      | El Señor de los anillos: La comunidad del anillo |        2001
+ Liv Tyler         | El Señor de los anillos: La comunidad del anillo |        2001
+ Ian Holm          | El Señor de los anillos: La comunidad del anillo |        2001
+ Christopher Lee   | El Señor de los anillos: La comunidad del anillo |        2001
+ John Rhys-Davies  | El Señor de los anillos: La comunidad del anillo |        2001
+ Orlando Bloom     | El Señor de los anillos: La comunidad del anillo |        2001
+ Dominic Monaghan  | El Señor de los anillos: La comunidad del anillo |        2001
+ Billy Boyd        | El Señor de los anillos: La comunidad del anillo |        2001
+ Lawrence Makoare  | El Señor de los anillos: La comunidad del anillo |        2001
+ Craig Parker      | El Señor de los anillos: La comunidad del anillo |        2001
+ Marton Csokas     | El Señor de los anillos: La comunidad del anillo |        2001
+ Andy Serkis       | El Señor de los anillos: La comunidad del anillo |        2001
+ Animada           | Monstruos S.A.                                   |        2001
+ Animada           | El viaje de Chihiro                              |        2001
+ Audrey Tautou     | Amélie                                           |        2001
+ Mathieu Kassovitz | Amélie                                           |        2001
+ Rufus             | Amélie                                           |        2001
+ Lorella Cravotta  | Amélie                                           |        2001
+ Serge Merlin      | Amélie                                           |        2001
+ Jamel Debbouze    | Amélie                                           |        2001
+ Claire Maurier    | Amélie                                           |        2001
+ Clotilde Mollet   | Amélie                                           |        2001
+ Isabelle Nanty    | Amélie                                           |        2001
+ Dominique Pinon   | Amélie                                           |        2001
+ Artus de Penguern | Amélie                                           |        2001
+ Yolande Moreau    | Amélie                                           |        2001
+ Urbain Cancelier  | Amélie                                           |        2001
+ Maurice Benichou  | Amélie                                           |        2001
+ George Clooney    | Ocean's Eleven                                   |        2001
+ Julia Roberts     | Ocean's Eleven                                   |        2001
+ Matt Damon        | Ocean's Eleven                                   |        2001
+ Andy García       | Ocean's Eleven                                   |        2001
+ Brad Pitt         | Ocean's Eleven                                   |        2001
+ Casey Affleck     | Ocean's Eleven                                   |        2001
+ Scott Caan        | Ocean's Eleven                                   |        2001
+ Elliott Gould     | Ocean's Eleven                                   |        2001
+ Bernie Mac        | Ocean's Eleven                                   |        2001
+ Carl Reiner       | Ocean's Eleven                                   |        2001
+ Don Cheadle       | Ocean's Eleven                                   |        2001
+ Topher Grace      | Ocean's Eleven                                   |        2001
+ Joshua Jackson    | Ocean's Eleven                                   |        2001
+ Holly Marie Combs | Ocean's Eleven                                   |        2001
+ Shane West        | Ocean's Eleven                                   |        2001
+ Nicole Kidman     | Mouling Rouge                                    |        2001
+ Ewan McGregor     | Mouling Rouge                                    |        2001
+ John Leguizamo    | Mouling Rouge                                    |        2001
+ Jim Broadbent     | Mouling Rouge                                    |        2001
+ Richard Roxburgh  | Mouling Rouge                                    |        2001
+ David Wenham      | Mouling Rouge                                    |        2001
+ Jacek Koman       | Mouling Rouge                                    |        2001
+ Kylie Minogue     | Mouling Rouge                                    |        2001
+
+(57 rows)
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+10. CONSULTA LISTADO DE ACTORES DE LAS PELÍCULAS ESTRENADAS EL AÑO 2008
+
+SELECT año_estreno, actor, pelicula FROM peliculas, reparto WHERE peliculas.id = reparto.id AND año_estreno = 2008 ;
+
+        2008 | Heath Ledger         | El caballero oscuro
+        2008 | Aaron Eckhart        | El caballero oscuro
+        2008 | Michael Caine        | El caballero oscuro
+        2008 | Gary Oldman          | El caballero oscuro
+        2008 | Maggie Gyllenhaal    | El caballero oscuro
+        2008 | Morgan Freeman       | El caballero oscuro
+        2008 | Eric Roberts         | El caballero oscuro
+        2008 | Cillian Murphy       | El caballero oscuro
+        2008 | Anthony Michael Hall | El caballero oscuro
+        2008 | Michael Jai White    | El caballero oscuro
+        2008 | William Fichtner     | El caballero oscuro
+        2008 | Edison Chen          | El caballero oscuro
+        2008 | Monique Curnen       | El caballero oscuro
+        2008 | Chin Han             | El caballero oscuro
+        2008 | Nestor Carbonell     | El caballero oscuro
+        2008 | Ritchie Coster       | El caballero oscuro
+        2008 | Keith Szarabajka     | El caballero oscuro
+        2008 | Colin McFarlane      | El caballero oscuro
+        2008 | Melinda McGraw       | El caballero oscuro
+        2008 | Nathan Gamble        | El caballero oscuro
+        2008 | Michael Vieau        | El caballero oscuro
+        2008 | Animada              | Wall-E
+        2008 | Robert Downey Jr.    | Iron Man
+        2008 | Terrence Howard      | Iron Man
+        2008 | Gwyneth Paltrow      | Iron Man
+        2008 | Jeff Bridges         | Iron Man
+        2008 | Stan Lee             | Iron Man
+        2008 | Leslie Bibb          | Iron Man
+        2008 | Clark Gregg          | Iron Man
+        2008 | Shaun Toub           | Iron Man
+        2008 | Faran Tahir          | Iron Man
+        2008 | Samuel L. Jackson    | Iron Man
+(33 rows)
+
+
